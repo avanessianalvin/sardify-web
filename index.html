@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Security-Policy" content="connect-src &#39;self&#39; wss://*.web.telegram.org; object-src &#39;none&#39;; base-uri &#39;self&#39;; form-action &#39;none&#39;">
+
+    <meta charset="UTF-8" />
+    <link rel="icon" href="favicon.ico" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Sardify</title>
+    <script>
+      // Runs before the app, so a phone that cannot start it shows why instead of a blank page
+      ;(function () {
+        function show(title, detail) {
+          var app = document.getElementById('app')
+          if (app && !app.__vue_app__)
+            app.innerText = title + '\n\n' + detail + '\n\nBrowser: ' + navigator.userAgent
+        }
+        window.addEventListener(
+          'error',
+          function (event) {
+            var source = event.target && (event.target.src || event.target.href)
+            show('Sardify could not start.', event.message || 'Could not load ' + source)
+          },
+          true,
+        )
+        window.addEventListener('unhandledrejection', function (event) {
+          show('Sardify could not start.', String(event.reason))
+        })
+      })()
+    </script>
+    <script type="module" crossorigin src="./assets/index-T1QpBtWM.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-D0QjlbAn.css">
+  </head>
+  <body>
+    <div id="app">Loading Sardify...</div>
+  </body>
+</html>
