@@ -43,7 +43,10 @@ async function pageFor(event) {
 function ask(page, request) {
   return new Promise((resolve, reject) => {
     const channel = new MessageChannel()
-    const timer = setTimeout(() => reject(new Error('Sardify did not answer')), ANSWER_TIMEOUT_MILLIS)
+    const timer = setTimeout(
+      () => reject(new Error('Sardify did not answer')),
+      ANSWER_TIMEOUT_MILLIS,
+    )
     channel.port1.onmessage = ({ data }) => {
       clearTimeout(timer)
       channel.port1.close()
@@ -93,7 +96,8 @@ async function respondFile(event, url, page, id) {
   const { info } = await ask(page, { kind: 'file', id })
   if (!info) return plain(404, 'No such file')
   const range = parseRange(event.request.headers.get('Range'), info.size)
-  if (!range) return plain(416, 'Range not satisfiable', { 'Content-Range': `bytes */${info.size}` })
+  if (!range)
+    return plain(416, 'Range not satisfiable', { 'Content-Range': `bytes */${info.size}` })
   const extension = info.name.slice(info.name.lastIndexOf('.') + 1).toLowerCase()
   const headers = {
     'Content-Type': MEDIA_TYPES[extension] || 'application/octet-stream',
@@ -110,6 +114,7 @@ async function respondFile(event, url, page, id) {
 async function respondZip(page, folderId) {
   const { info } = await ask(page, { kind: 'zip', id: folderId })
   if (!info || !info.files.length) return plain(404, 'Nothing to download here')
+  const notes = info.notes ? new TextEncoder().encode(info.notes.text) : null
   function* entries() {
     for (const file of info.files) {
       yield {
@@ -120,8 +125,11 @@ async function respondZip(page, folderId) {
         input: file.size ? bytesBetween(page, file.id, 0, file.size - 1) : new Uint8Array(),
       }
     }
+    if (notes)
+      yield { name: info.notes.path, size: notes.length, lastModified: new Date(), input: notes }
   }
   const metadata = info.files.map((file) => ({ name: file.path, size: file.size }))
+  if (notes) metadata.push({ name: info.notes.path, size: notes.length })
   const zip = downloadZip(entries(), { metadata })
   return new Response(zip.body, {
     headers: {

@@ -1,0 +1,2 @@
+function e(e,t){for(let n of e.split(`
+`))if(n.startsWith(`${t}=`)){let e=Number(n.slice(t.length+1).trim());return Number.isFinite(e)?e:null}return null}function t(t){return e(t.caption,`createdAt`)??0}function n(e){return e.filter(e=>e.caption.startsWith(`sardify-backup`)).reduce((e,n)=>!e||t(n)>t(e)?n:e,null)}export{n as t};
